@@ -6,7 +6,7 @@ set -uo pipefail
 source "$(dirname "$(readlink -f "$0")")/lib.sh"
 cd /home/dev
 capture p1-linux-01 0 <<'__CMD__'
-sudo apt-get update -q && sudo apt-get install -y -q git curl jq nginx netcat-openbsd python3-venv >/dev/null
+sudo apt-get update -q && sudo apt-get install -y -q git curl jq nginx netcat-openbsd openssh-server python3-venv >/dev/null
 __CMD__
 capture p1-linux-02 0 <<'__CMD__'
 nc -lk 127.0.0.1 8099 >/dev/null & listener=$!

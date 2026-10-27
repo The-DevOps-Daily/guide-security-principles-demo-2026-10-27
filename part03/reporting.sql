@@ -19,7 +19,7 @@ RESET ROLE;
 SET ROLE reporting;
 SELECT * FROM reporting.sales;
 SELECT * FROM reporting.tickets;
-SELECT code FROM tickets;
+SELECT code FROM public.tickets;
 RESET ROLE;
 
 \echo '-- fix: default privileges for future views, and a grant for the one that slipped through'

@@ -23,7 +23,7 @@ capture p4-k8s-06 0 <<'__CMD__'
 export PATH="$HOME/istio-1.31.3/bin:$PATH" && cd ~/security-principles-demo/part04
 __CMD__
 capture p4-k8s-07 0 <<'__CMD__'
-istioctl install --set profile=ambient --skip-confirmation >/dev/null
+istioctl install --set profile=ambient --set meshConfig.pathNormalization.normalization=MERGE_SLASHES --skip-confirmation >/dev/null
 __CMD__
 capture p4-k8s-08 0 <<'__CMD__'
 kubectl -n istio-system get pods
@@ -71,15 +71,18 @@ capture p4-k8s-22 0 <<'__CMD__'
 kubectl -n edge exec client -- curl -s -w ' (%{http_code})\n' http://edge-istio/admin
 __CMD__
 capture p4-k8s-23 0 <<'__CMD__'
-kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $user_token"
+kubectl -n edge exec client -- curl -s -w ' (%{http_code})\n' http://edge-istio//admin/refunds
 __CMD__
 capture p4-k8s-24 0 <<'__CMD__'
-kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $admin_token"
+kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $user_token"
 __CMD__
 capture p4-k8s-25 0 <<'__CMD__'
+kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $admin_token"
+__CMD__
+capture p4-k8s-26 0 <<'__CMD__'
 kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer ${admin_token%.*}.${user_token##*.}"
 __CMD__
-capture p4-k8s-26 56 <<'__CMD__'
+capture p4-k8s-27 56 <<'__CMD__'
 kubectl -n edge exec client -- curl -sS -m 5 http://api.shop/admin/refunds
 __CMD__
 finish

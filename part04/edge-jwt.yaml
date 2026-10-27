@@ -28,13 +28,13 @@ spec:
   rules:
     - to:
         - operation:
-            notPaths: ['/admin/*']
+            notPaths: ['/admin', '/admin/*']
     - from:
         - source:
             requestPrincipals: ['testing@secure.istio.io/testing@secure.istio.io']
       to:
         - operation:
-            paths: ['/admin/*']
+            paths: ['/admin', '/admin/*']
       when:
         - key: request.auth.claims[groups]
           values: ['group1']

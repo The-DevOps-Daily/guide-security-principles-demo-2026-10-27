@@ -50,6 +50,25 @@ spec:
       kind: Service
       name: api
 ---
+# Only the edge gateway's identity may call the API, so nobody can skip the JWT checks
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: api
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ['cluster.local/ns/edge/sa/edge-istio']
+      to:
+        - operation:
+            ports: ['8080']
+---
 # A client to test with, standing in for the Internet
 apiVersion: v1
 kind: Pod

@@ -68,12 +68,18 @@ capture p4-k8s-21 0 <<'__CMD__'
 kubectl -n edge exec client -- curl -s -w ' (%{http_code})\n' http://edge-istio/admin/refunds
 __CMD__
 capture p4-k8s-22 0 <<'__CMD__'
-kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $user_token"
+kubectl -n edge exec client -- curl -s -w ' (%{http_code})\n' http://edge-istio/admin
 __CMD__
 capture p4-k8s-23 0 <<'__CMD__'
-kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $admin_token"
+kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $user_token"
 __CMD__
 capture p4-k8s-24 0 <<'__CMD__'
+kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer $admin_token"
+__CMD__
+capture p4-k8s-25 0 <<'__CMD__'
 kubectl -n edge exec -i client -- curl -s -w ' (%{http_code})\n' -H @- http://edge-istio/admin/refunds <<<"Authorization: Bearer ${admin_token%.*}.${user_token##*.}"
+__CMD__
+capture p4-k8s-26 56 <<'__CMD__'
+kubectl -n edge exec client -- curl -sS -m 5 http://api.shop/admin/refunds
 __CMD__
 finish

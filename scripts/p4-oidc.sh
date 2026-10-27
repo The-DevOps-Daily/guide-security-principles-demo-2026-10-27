@@ -5,7 +5,7 @@
 set -uo pipefail
 source "$(dirname "$(readlink -f "$0")")/lib.sh"
 capture p4-oidc-01 0 <<'__CMD__'
-curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value > id-token.jwt
+umask 077; curl -sS -H @- "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" <<<"Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" | jq -r .value > id-token.jwt
 __CMD__
 capture p4-oidc-02 0 <<'__CMD__'
 python3 part04/decode-jwt.py id-token.jwt | jq '{iss, aud, sub, repository, repository_id, repository_owner_id, environment, ref, job_workflow_ref, runner_environment}'

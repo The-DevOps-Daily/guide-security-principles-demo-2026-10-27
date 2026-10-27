@@ -10,4 +10,5 @@ part03	aws sts assume-role --role-arn arn:aws:iam::111122223333:role/ShopProdAdm
 part03	aws iam generate-credential-report
 part03	aws iam get-credential-report --query Content --output text
 part03	aws iam generate-service-last-accessed-details --arn arn:aws:iam::111122223333:role/shop-api
+part03	aws iam get-service-last-accessed-details --job-id 98a765b4-3cde-2101-2345-example678f9
 part03	aws accessanalyzer create-analyzer --analyzer-name unused-access --type ACCOUNT_UNUSED_ACCESS --configuration '{"unusedAccess":{"unusedAccessAge":90}}'

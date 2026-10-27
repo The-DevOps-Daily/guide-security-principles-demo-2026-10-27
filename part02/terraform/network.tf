@@ -14,6 +14,15 @@ resource "aws_vpc_security_group_ingress_rule" "alb_https" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
+resource "aws_vpc_security_group_egress_rule" "alb_to_api" {
+  security_group_id            = aws_security_group.alb.id
+  description                  = "Forward to the API tasks only"
+  ip_protocol                  = "tcp"
+  from_port                    = 8080
+  to_port                      = 8080
+  referenced_security_group_id = aws_security_group.api.id
+}
+
 resource "aws_security_group" "api" {
   name        = "shop-api"
   description = "API tasks, reachable only from the load balancer"
@@ -27,6 +36,24 @@ resource "aws_vpc_security_group_ingress_rule" "api_from_alb" {
   from_port                    = 8080
   to_port                      = 8080
   referenced_security_group_id = aws_security_group.alb.id
+}
+
+resource "aws_vpc_security_group_egress_rule" "api_to_db" {
+  security_group_id            = aws_security_group.api.id
+  description                  = "Postgres"
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_security_group.db.id
+}
+
+resource "aws_vpc_security_group_egress_rule" "api_https_out" {
+  security_group_id = aws_security_group.api.id
+  description       = "HTTPS to the payment provider, through the NAT gateway"
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_security_group" "db" {

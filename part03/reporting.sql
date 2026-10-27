@@ -1,27 +1,35 @@
 \set ON_ERROR_STOP off
 CREATE ROLE reporting LOGIN PASSWORD 'lab-only-change-me';
 GRANT CONNECT ON DATABASE shop TO reporting;
-GRANT USAGE ON SCHEMA public TO reporting;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO reporting;
 
-\echo '-- the next migration adds a table'
+-- Reports read views in their own schema, never the raw tables
 SET ROLE shop_owner;
-CREATE TABLE refunds (order_id int REFERENCES orders, amount numeric(10, 2));
+CREATE SCHEMA reporting;
+CREATE VIEW reporting.sales AS
+  SELECT status, count(*) AS orders, sum(total) AS revenue FROM orders GROUP BY status;
+GRANT USAGE ON SCHEMA reporting TO reporting;
+GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO reporting;
+
+\echo '-- the next migration adds a view'
+CREATE VIEW reporting.tickets AS
+  SELECT status, count(*) AS tickets FROM tickets GROUP BY status;
 RESET ROLE;
 
-\echo '-- reporting reads refunds'
+\echo '-- reporting reads both views, and tries a raw table'
 SET ROLE reporting;
-SELECT count(*) FROM refunds;
+SELECT * FROM reporting.sales;
+SELECT * FROM reporting.tickets;
+SELECT code FROM tickets;
 RESET ROLE;
 
-\echo '-- fix: default privileges for future tables, and a grant for the one that slipped through'
-ALTER DEFAULT PRIVILEGES FOR ROLE shop_owner IN SCHEMA public GRANT SELECT ON TABLES TO reporting;
-GRANT SELECT ON refunds TO reporting;
+\echo '-- fix: default privileges for future views, and a grant for the one that slipped through'
 SET ROLE shop_owner;
-CREATE TABLE payouts (id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY, amount numeric(10, 2));
+ALTER DEFAULT PRIVILEGES FOR ROLE shop_owner IN SCHEMA reporting GRANT SELECT ON TABLES TO reporting;
+GRANT SELECT ON reporting.tickets TO reporting;
+CREATE VIEW reporting.events AS SELECT count(*) AS events FROM events;
 RESET ROLE;
 
-\echo '-- reporting reads refunds and the newer payouts'
+\echo '-- reporting reads the fixed view and the newest one'
 SET ROLE reporting;
-SELECT count(*) AS refunds FROM refunds;
-SELECT count(*) AS payouts FROM payouts;
+SELECT * FROM reporting.tickets;
+SELECT * FROM reporting.events;

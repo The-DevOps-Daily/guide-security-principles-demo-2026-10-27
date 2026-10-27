@@ -50,7 +50,7 @@ capture p4-k8s-15 2 <<'__CMD__'
 kubectl -n shop exec impostor -- pg_isready -h postgres
 __CMD__
 capture p4-k8s-16 0 <<'__CMD__'
-kubectl -n istio-system logs ds/ztunnel --since=2m | grep -m 1 'policy rejection'
+kubectl -n istio-system logs -l app=ztunnel --since=5m --max-log-requests=8 | grep 'src.workload="impostor"' | grep -m 1 -o -E '(src.identity|dst.identity|error)="[^"]*"'
 __CMD__
 capture p4-k8s-17 0 <<'__CMD__'
 kubectl apply -f edge.yaml -f edge-jwt.yaml >/dev/null && kubectl -n edge wait --for=condition=Programmed gateway/edge --timeout=180s && kubectl -n edge wait --for=condition=Ready pod/client --timeout=120s

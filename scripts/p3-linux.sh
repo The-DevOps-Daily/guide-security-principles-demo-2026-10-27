@@ -45,12 +45,12 @@ capture p3-linux-13 0 <<'__CMD__'
 sudo systemctl start shop-worker && sleep 2 && sudo journalctl -u shop-worker -n 1 -o cat --no-pager
 __CMD__
 capture p3-linux-14 0 <<'__CMD__'
-python3 -m venv ~/venv-iam && ~/venv-iam/bin/pip install -q parliament==1.6.4 'setuptools<82'
+python3 -m venv ~/venv-iam && ~/venv-iam/bin/pip install -q parliament==1.6.4 'setuptools<81'
 __CMD__
 capture p3-linux-15 1 <<'__CMD__'
-~/venv-iam/bin/parliament --file iam/api-policy-broad.json
+~/venv-iam/bin/parliament < iam/api-policy-broad.json
 __CMD__
 capture p3-linux-16 0 <<'__CMD__'
-~/venv-iam/bin/parliament --file iam/api-policy.json && echo 'no findings'
+~/venv-iam/bin/parliament < iam/api-policy.json && echo 'no findings'
 __CMD__
 finish

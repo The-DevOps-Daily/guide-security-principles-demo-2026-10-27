@@ -92,6 +92,9 @@ jobs:
           kubectl get pods -A -o wide || true
           kubectl -n shop get events --sort-by=.lastTimestamp | tail -40 || true
           kubectl -n istio-system logs -l app=ztunnel --since=30m --max-log-requests=8 | grep -E 'error|warn' | tail -40 || true
+          kubectl -n istio-system logs -l app=ztunnel --since=30m --max-log-requests=8 --timestamps | grep -E 'worker|postgres-' | grep -v 'src.workload="api' | tail -40 || true
+          istioctl ztunnel-config workloads --workload-namespace shop || true
+          kubectl -n shop get pods -o wide || true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

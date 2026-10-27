@@ -26,7 +26,7 @@ capture p3-k8s-07 0 <<'__CMD__'
 kubectl -n shop rollout status deployment/worker --timeout=120s >/dev/null && kubectl -n shop exec deploy/worker -- printenv STOLEN
 __CMD__
 capture p3-k8s-08 0 <<'__CMD__'
-kubectl -n shop rollout undo deployment/worker
+kubectl -n shop rollout undo deployment/worker && kubectl -n shop rollout status deployment/worker --timeout=120s
 __CMD__
 capture p3-k8s-09 0 <<'__CMD__'
 kubectl -n shop get secret postgres -o jsonpath='{.data.password}' | base64 -d; echo

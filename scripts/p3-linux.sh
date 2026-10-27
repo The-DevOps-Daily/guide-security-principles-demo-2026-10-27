@@ -12,7 +12,7 @@ capture p3-linux-02 0 <<'__CMD__'
 psql -h 127.0.0.1 -U shop_api -d shop -f api-checks.sql
 __CMD__
 capture p3-linux-03 0 <<'__CMD__'
-sudo -u postgres psql -d shop < reporting.sql
+sudo -u postgres psql -q -d shop < reporting.sql
 __CMD__
 capture p3-linux-04 0 <<'__CMD__'
 sudo install -d -m 0700 /etc/shop-worker
@@ -33,19 +33,19 @@ capture p3-linux-09 0 <<'__CMD__'
 sudo install -m 0644 shop-worker.service.basic /etc/systemd/system/shop-worker.service && sudo systemctl daemon-reload
 __CMD__
 capture p3-linux-10 0 <<'__CMD__'
-systemd-analyze security shop-worker.service | tail -n 1
+SYSTEMD_EMOJI=0 systemd-analyze security shop-worker.service | tail -n 1
 __CMD__
 capture p3-linux-11 0 <<'__CMD__'
 sudo install -m 0644 shop-worker.service /etc/systemd/system/shop-worker.service && sudo systemctl daemon-reload
 __CMD__
 capture p3-linux-12 0 <<'__CMD__'
-systemd-analyze security shop-worker.service | tail -n 1
+SYSTEMD_EMOJI=0 systemd-analyze security shop-worker.service | tail -n 1
 __CMD__
 capture p3-linux-13 0 <<'__CMD__'
-sudo systemctl start shop-worker && sleep 2 && journalctl -u shop-worker -n 1 -o cat --no-pager
+sudo systemctl start shop-worker && sleep 2 && sudo journalctl -u shop-worker -n 1 -o cat --no-pager
 __CMD__
 capture p3-linux-14 0 <<'__CMD__'
-python3 -m venv ~/venv-iam && ~/venv-iam/bin/pip install -q parliament==1.6.4
+python3 -m venv ~/venv-iam && ~/venv-iam/bin/pip install -q parliament==1.6.4 'setuptools<82'
 __CMD__
 capture p3-linux-15 1 <<'__CMD__'
 ~/venv-iam/bin/parliament --file iam/api-policy-broad.json

@@ -9,6 +9,8 @@ spec:
       kind: Gateway
       name: edge
   jwtRules:
+    # LAB ONLY: Istio's sample issuer. Its private key is public in the Istio repository,
+    # so anyone can sign tokens that this rule accepts. Never use it outside a lab.
     - issuer: testing@secure.istio.io
       jwksUri: https://raw.githubusercontent.com/istio/istio/release-1.31/security/tools/jwt/samples/jwks.json
 ---

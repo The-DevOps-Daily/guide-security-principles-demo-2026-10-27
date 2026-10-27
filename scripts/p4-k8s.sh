@@ -44,7 +44,7 @@ capture p4-k8s-13 0 <<'__CMD__'
 kubectl apply -f mesh-policy.yaml
 __CMD__
 capture p4-k8s-14 0 <<'__CMD__'
-sleep 5; kubectl -n shop exec deploy/worker -- pg_isready -h postgres
+sleep 15; kubectl -n shop exec deploy/worker -- pg_isready -h postgres
 __CMD__
 capture p4-k8s-15 2 <<'__CMD__'
 kubectl -n shop exec impostor -- pg_isready -h postgres

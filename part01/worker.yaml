@@ -1,0 +1,51 @@
+# Stand-in for the ticket shop worker. It uses the Postgres image only because that image has
+# pg_isready and psql, which the later parts use to test who can reach the database.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: worker
+  namespace: shop
+automountServiceAccountToken: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      serviceAccountName: worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70
+        runAsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: postgres:18.6-alpine3.24@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
+          command: ['sleep', 'infinity']
+          env:
+            - name: PGHOST
+              value: postgres
+            - name: PGCONNECT_TIMEOUT
+              value: '3'
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']

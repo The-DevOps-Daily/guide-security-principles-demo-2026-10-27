@@ -1,0 +1,5 @@
+[Unit]
+Description=Ticket shop worker (stand-in)
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/shop-worker/worker.py

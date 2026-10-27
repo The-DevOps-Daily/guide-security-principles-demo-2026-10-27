@@ -1,0 +1,13 @@
+part01	aws s3api create-bucket --bucket shop-db-backups-example --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1 --object-lock-enabled-for-bucket
+part01	aws s3api put-object-lock-configuration --bucket shop-db-backups-example --object-lock-configuration '{"ObjectLockEnabled":"Enabled","Rule":{"DefaultRetention":{"Mode":"COMPLIANCE","Days":30}}}'
+part02	aws ec2 create-security-group --group-name shop-db --description "Postgres, reachable only from the API" --vpc-id vpc-0abc1234def567890
+part02	aws ec2 authorize-security-group-ingress --group-id sg-0db1234567890abcd --ip-permissions 'IpProtocol=tcp,FromPort=5432,ToPort=5432,UserIdGroupPairs=[{GroupId=sg-0a1b2c3d4e5f67890,Description=api}]'
+part02	aws ec2 enable-ebs-encryption-by-default --region eu-west-1
+part02	aws ec2 get-ebs-encryption-by-default --region eu-west-1
+part02	aws s3api put-bucket-encryption --bucket shop-tickets-example --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms","KMSMasterKeyID":"alias/shop-data"},"BucketKeyEnabled":true}]}'
+part03	aws accessanalyzer validate-policy --policy-type IDENTITY_POLICY --policy-document file://iam/api-policy.json
+part03	aws sts assume-role --role-arn arn:aws:iam::111122223333:role/ShopProdAdmin --role-session-name ana-incident-4711 --serial-number arn:aws:iam::111122223333:mfa/ana --token-code 123456 --duration-seconds 3600
+part03	aws iam generate-credential-report
+part03	aws iam get-credential-report --query Content --output text
+part03	aws iam generate-service-last-accessed-details --arn arn:aws:iam::111122223333:role/shop-api
+part03	aws accessanalyzer create-analyzer --analyzer-name unused-access --type ACCOUNT_UNUSED_ACCESS --configuration '{"unusedAccess":{"unusedAccessAge":90}}'

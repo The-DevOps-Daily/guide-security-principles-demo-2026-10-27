@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edge
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: edge
+  namespace: edge
+  annotations:
+    networking.istio.io/service-type: ClusterIP
+spec:
+  gatewayClassName: istio
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api
+  namespace: edge
+spec:
+  parentRefs:
+    - name: edge
+  rules:
+    - backendRefs:
+        - name: api
+          namespace: shop
+          port: 80
+---
+# The shop namespace allows routes in edge to send traffic to its api Service.
+apiVersion: gateway.networking.k8s.io/v1
+kind: ReferenceGrant
+metadata:
+  name: edge-to-api
+  namespace: shop
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: edge
+  to:
+    - group: ''
+      kind: Service
+      name: api
+---
+# A client to test with, standing in for the Internet
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client
+  namespace: edge
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:8.19.0@sha256:c03110c736db81bbe1be0296f1f1608c81b954b01626bdfb0a8f84e5bd00ff3c
+      command: ['sleep', 'infinity']

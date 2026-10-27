@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadOwnSecrets",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": [
+        "arn:aws:secretsmanager:eu-west-1:111122223333:secret:shop/payment-api-key-??????",
+        "arn:aws:secretsmanager:eu-west-1:111122223333:secret:shop/webhook-signing-secret-??????"
+      ]
+    },
+    {
+      "Sid": "ReadTicketPdfs",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::shop-tickets-example/tickets/*"
+    }
+  ]
+}

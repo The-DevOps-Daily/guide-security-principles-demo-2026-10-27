@@ -1,0 +1,23 @@
+# Claims to be the worker: same label, but the default service account.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: impostor
+  namespace: shop
+  labels:
+    app: worker
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 70
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: impostor
+      image: postgres:18.6-alpine3.24@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
+      command: ['sleep', 'infinity']
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ['ALL']

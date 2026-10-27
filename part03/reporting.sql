@@ -1,0 +1,25 @@
+\set ON_ERROR_STOP off
+CREATE ROLE reporting LOGIN PASSWORD 'lab-only-change-me';
+GRANT CONNECT ON DATABASE shop TO reporting;
+GRANT USAGE ON SCHEMA public TO reporting;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO reporting;
+
+-- The next migration adds a table
+SET ROLE shop_owner;
+CREATE TABLE refunds (order_id int REFERENCES orders, amount numeric(10, 2));
+RESET ROLE;
+
+SET ROLE reporting;
+SELECT count(*) FROM refunds;
+RESET ROLE;
+
+-- Future tables created by shop_owner are readable by reporting
+ALTER DEFAULT PRIVILEGES FOR ROLE shop_owner IN SCHEMA public GRANT SELECT ON TABLES TO reporting;
+GRANT SELECT ON refunds TO reporting;
+SET ROLE shop_owner;
+CREATE TABLE payouts (id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY, amount numeric(10, 2));
+RESET ROLE;
+
+SET ROLE reporting;
+SELECT count(*) FROM refunds;
+SELECT count(*) FROM payouts;

@@ -1,0 +1,38 @@
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: edge-jwt
+  namespace: edge
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: edge
+  jwtRules:
+    - issuer: testing@secure.istio.io
+      jwksUri: https://raw.githubusercontent.com/istio/istio/release-1.31/security/tools/jwt/samples/jwks.json
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: edge-admin
+  namespace: edge
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: edge
+  action: ALLOW
+  rules:
+    - to:
+        - operation:
+            notPaths: ['/admin/*']
+    - from:
+        - source:
+            requestPrincipals: ['testing@secure.istio.io/testing@secure.istio.io']
+      to:
+        - operation:
+            paths: ['/admin/*']
+      when:
+        - key: request.auth.claims[groups]
+          values: ['group1']
